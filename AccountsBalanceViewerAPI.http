@@ -1,0 +1,6 @@
+@AccountsBalanceViewerAPI_HostAddress = http://localhost:5165
+
+GET {{AccountsBalanceViewerAPI_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
