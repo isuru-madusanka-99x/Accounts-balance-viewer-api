@@ -7,7 +7,6 @@ using System.Security.Claims;
 
 namespace AccountsBalanceViewerAPI.Startup;
 
-
 public static partial class ServiceInitializer
 {
     public static IServiceCollection ConfigureServices(
