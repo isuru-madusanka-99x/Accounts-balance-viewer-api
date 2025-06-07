@@ -56,10 +56,17 @@ builder.Services.AddAuth0WebAppAuthentication(options => {
     options.Domain = builder.Configuration["Auth0:Domain"];
     options.ClientId = builder.Configuration["Auth0:ClientId"];
     options.ClientSecret = builder.Configuration["Auth0:ClientSecret"];
+
+    options.SkipCookieMiddleware = true;
 });
 
 // Add JWT Bearer Authentication for API calls
-builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+builder.Services.AddAuthentication(options =>
+    {
+        options.DefaultAuthenticateScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultChallengeScheme = JwtBearerDefaults.AuthenticationScheme;
+        options.DefaultScheme = JwtBearerDefaults.AuthenticationScheme;
+    })
     .AddJwtBearer(options =>
     {
         options.Authority = $"https://{builder.Configuration["Auth0:Domain"]}";
@@ -68,6 +75,28 @@ builder.Services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
         {
             NameClaimType = ClaimTypes.NameIdentifier,
             RoleClaimType = "https://schemas.accountsbalanceviewer.com/roles"
+        };
+
+        // Add events to handle unauthorized responses appropriately
+        options.Events = new JwtBearerEvents
+        {
+            OnChallenge = context =>
+            {
+                // Skip the default behavior
+                context.HandleResponse();
+
+                // Return 401 instead of redirect
+                context.Response.StatusCode = StatusCodes.Status401Unauthorized;
+                context.Response.ContentType = "application/json";
+
+                var result = System.Text.Json.JsonSerializer.Serialize(new
+                {
+                    error = "Unauthorized",
+                    message = "You are not authorized to access this resource"
+                });
+
+                return context.Response.WriteAsync(result);
+            }
         };
     });
 
