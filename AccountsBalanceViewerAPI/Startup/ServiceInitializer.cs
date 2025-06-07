@@ -4,6 +4,8 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Auth0.AspNetCore.Authentication;
 using System.Security.Claims;
+using AccountsBalanceViewerAPI.Infrastructure.Interfaces;
+using AccountsBalanceViewerAPI.Infrastructure;
 
 namespace AccountsBalanceViewerAPI.Startup;
 
@@ -37,7 +39,7 @@ public static partial class ServiceInitializer
         //configure db repos
         //services.AddTransient<IPlanRepository, PlanRepository>();
         //services.AddTransient<IValveRepository, ValveRepository>();
-        //services.AddTransient<IUnitOfWork, UnitOfWork>();
+        services.AddTransient<IUnitOfWork, UnitOfWork>();
 
         //Get DB connection string
         IConfiguration connectionConfig = config.GetSection("ConnectionStrings");

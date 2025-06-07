@@ -6,4 +6,12 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <ItemGroup>
+    <Folder Include="Repositories\" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\AccountsBalanceViewerAPI.Domain\AccountsBalanceViewerAPI.Domain.csproj" />
+  </ItemGroup>
+
 </Project>

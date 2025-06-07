@@ -20,6 +20,7 @@
 
   <ItemGroup>
     <ProjectReference Include="..\AccountsBalanceViewerAPI.Domain\AccountsBalanceViewerAPI.Domain.csproj" />
+    <ProjectReference Include="..\AccountsBalanceViewerAPI.Infrastructure\AccountsBalanceViewerAPI.Infrastructure.csproj" />
   </ItemGroup>
 
 </Project>
