@@ -15,4 +15,7 @@ var app = builder.Build();
 app.RegisterEndpoints();
 app.ConfigureMiddleware();
 
+// Migrate latest database changes during startup if auto migration is enabled
+app.ExecuteDbMigrations();
+
 app.Run();

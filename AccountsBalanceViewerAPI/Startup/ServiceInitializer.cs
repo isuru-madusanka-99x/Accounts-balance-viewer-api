@@ -6,6 +6,8 @@ using Auth0.AspNetCore.Authentication;
 using System.Security.Claims;
 using AccountsBalanceViewerAPI.Infrastructure.Interfaces;
 using AccountsBalanceViewerAPI.Infrastructure;
+using AccountsBalanceViewerAPI.Application.Interfaces;
+using AccountsBalanceViewerAPI.Application.Services;
 
 namespace AccountsBalanceViewerAPI.Startup;
 
@@ -21,7 +23,7 @@ public static partial class ServiceInitializer
 
         RegisterDbOptions(services, config);
 
-        //RegisterServices(services, env);
+        RegisterServices(services, env);
 
         RegisterSwagger(services);
 
@@ -187,6 +189,11 @@ public static partial class ServiceInitializer
         });
     }
 
+    private static void RegisterServices(IServiceCollection services, IWebHostEnvironment env)
+    {
+        services.AddTransient<IAccountService, AccountService>();
+    }
+
     /*
 
     private static void RegisterScopedServices(IServiceCollection services)
@@ -194,38 +201,6 @@ public static partial class ServiceInitializer
         services.AddScoped<IContextService, ContextService>();
         services.AddHttpContextAccessor();
         services.AddScoped<IAzStorageService, AzStorageService>();
-    }
-
-    
-
-    private static void RegisterServices(IServiceCollection services, IWebHostEnvironment env)
-    {
-        services.AddSingleton<ITelemetryEventService, TelemetryEventService>();
-        services.AddTransient<IPlansService, PlansService>();
-        services.AddTransient<IPlannedOperationsService, PlannedOperationsService>();
-        services.AddTransient<IValidOperationTypesService, ValidOperationTypesService>();
-        services.AddTransient<IValidPlanStatusesService, ValidPlanStatusesService>();
-        services.AddTransient<IApiService, ApiService>();
-        services.AddTransient<IUserAccessService, UserAccessService>();
-        services.AddTransient<IUserService, UserService>();
-        services.AddTransient<IValveService, ValveService>();
-        services.AddTransient<IExcelService, ExcelService>();
-        services.AddTransient<IValidOperationTypesService, ValidOperationTypesService>();
-        services.AddTransient<IDiagramService, DiagramService>();
-        services.AddTransient<IValveLogService, ValveLogService>();
-        services.AddTransient<IAuditService, AuditService>();
-        services.AddTransient<IDocumentsService, DocumentsService>();
-        services.AddTransient<IDocumentReferencesService, DocumentReferencesService>();
-        services.AddTransient<IFieldsService, FieldsService>();
-        services.AddTransient<IGenericApiCallService, GenericApiCallService>();
-        services.AddTransient<IFeatureService, FeatureService>();
-
-        services.AddTransient<ISearchFilterService, SearchFilterService>();
-        services.AddTransient<ISearchFilter<Valve>, ValveSearchFilterService>();
-
-        services.AddPDFReporting(env.IsDevelopment());
-
-        RegisterSearchConditions<Valve>(services);
     }
 
     */
