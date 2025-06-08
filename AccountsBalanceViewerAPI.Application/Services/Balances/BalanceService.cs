@@ -35,7 +35,7 @@ public class BalanceService : IBalanceService
                     AccountName = b.Account.AccountName,
                     AccountCode = b.Account.AccountCode,
                     Amount = b.Amount
-                }).ToList()
+                }).OrderByDescending(ab => ab.AccountName).ToList()
             });
 
         return result;
