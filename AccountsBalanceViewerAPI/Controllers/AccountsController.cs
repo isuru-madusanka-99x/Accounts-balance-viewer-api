@@ -1,5 +1,4 @@
 using AccountsBalanceViewerAPI.Application.Interfaces;
-using AccountsBalanceViewerAPI.Domain.Models;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -8,15 +7,15 @@ namespace AccountsBalanceViewerAPI.Controllers;
 [ApiController]
 [Route("api/[controller]")]
 [Authorize("AllUsers")]
-public class AccountController : ControllerBase
+public class AccountsController : ControllerBase
 {
-    private readonly IAccountService _accountService;
-    private readonly ILogger<AccountController> _logger;
+    private readonly IAccountService AccountsService;
+    private readonly ILogger<AccountsController> Logger;
 
-    public AccountController(IAccountService accountService, ILogger<AccountController> logger)
+    public AccountsController(IAccountService accountService, ILogger<AccountsController> logger)
     {
-        _accountService = accountService;
-        _logger = logger;
+        AccountsService = accountService;
+        Logger = logger;
     }
 
     [HttpGet]
@@ -24,7 +23,7 @@ public class AccountController : ControllerBase
     {
         try
         {
-            var accounts = await _accountService.GetAllAccountsAsync();
+            var accounts = await AccountsService.GetAllAccountsAsync();
             return Ok(new
             {
                 success = true,
@@ -34,7 +33,7 @@ public class AccountController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving accounts");
+            Logger.LogError(ex, "Error retrieving accounts");
             return StatusCode(500, new
             {
                 success = false,
@@ -48,7 +47,7 @@ public class AccountController : ControllerBase
     {
         try
         {
-            var account = await _accountService.GetAccountByIdAsync(id);
+            var account = await AccountsService.GetAccountByIdAsync(id);
             if (account == null)
             {
                 return NotFound(new
@@ -66,7 +65,7 @@ public class AccountController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving account with ID {Id}", id);
+            Logger.LogError(ex, "Error retrieving account with ID {Id}", id);
             return StatusCode(500, new
             {
                 success = false,

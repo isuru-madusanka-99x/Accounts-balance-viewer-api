@@ -7,17 +7,17 @@ namespace AccountsBalanceViewerAPI.Application.Services.Balances;
 
 public class BalanceService : IBalanceService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork UnitOfWork;
 
     public BalanceService(IUnitOfWork unitOfWork)
     {
-        _unitOfWork = unitOfWork;
+        UnitOfWork = unitOfWork;
     }
 
     public async Task<IEnumerable<BalancePeriodDto>> GetBalancesByPeriodAsync()
     {
         // Get all balances with their accounts
-        var balances = await _unitOfWork.BalanceRepository.GetAsync(
+        var balances = await UnitOfWork.BalanceRepository.GetAsync(
             include: query => query.Include(b => b.Account)
         );
 

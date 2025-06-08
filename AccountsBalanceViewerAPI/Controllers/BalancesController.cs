@@ -9,18 +9,18 @@ namespace AccountsBalanceViewerAPI.Controllers;
 [Authorize]
 public class BalancesController : ControllerBase
 {
-    private readonly ILogger<BalancesController> _logger;
-    private readonly IFileUploadService _fileUploadService;
-    private readonly IBalanceService _balanceService;
+    private readonly ILogger<BalancesController> Logger;
+    private readonly IFileUploadService FileUploadService;
+    private readonly IBalanceService BalanceService;
 
     public BalancesController(
         ILogger<BalancesController> logger, 
         IFileUploadService fileUploadService,
         IBalanceService balanceService)
     {
-        _logger = logger;
-        _fileUploadService = fileUploadService;
-        _balanceService = balanceService;
+        Logger = logger;
+        FileUploadService = fileUploadService;
+        BalanceService = balanceService;
     }
 
     // Get all balance periods (year and month combinations)
@@ -30,7 +30,7 @@ public class BalancesController : ControllerBase
     {
         try
         {
-            var periods = await _balanceService.GetBalancesByPeriodAsync();
+            var periods = await BalanceService.GetBalancesByPeriodAsync();
             return Ok(new
             {
                 success = true,
@@ -40,7 +40,7 @@ public class BalancesController : ControllerBase
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "Error retrieving balance periods");
+            Logger.LogError(ex, "Error retrieving balance periods");
             return StatusCode(500, new
             {
                 success = false,
@@ -54,7 +54,7 @@ public class BalancesController : ControllerBase
     [Consumes("multipart/form-data")]
     public async Task<IActionResult> UploadBalances(IFormFile file)
     {
-        var (success, error) = await _fileUploadService.ProcessBalanceFileAsync(file);
+        var (success, error) = await FileUploadService.ProcessBalanceFileAsync(file);
         if (!success)
             return BadRequest(new { success = false, message = error });
 

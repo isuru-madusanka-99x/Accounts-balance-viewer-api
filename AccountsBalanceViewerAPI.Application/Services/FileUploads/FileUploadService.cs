@@ -10,11 +10,11 @@ namespace AccountsBalanceViewerAPI.Application.Services.FileUploads;
 
 public class FileUploadService : IFileUploadService
 {
-    private readonly DataContext _context;
+    private readonly DataContext Context;
 
     public FileUploadService(DataContext context)
     {
-        _context = context;
+        Context = context;
     }
 
     public async Task<(bool Success, string? ErrorMessage)> ProcessBalanceFileAsync(IFormFile file)
@@ -22,7 +22,7 @@ public class FileUploadService : IFileUploadService
         if (file == null || file.Length == 0)
             return (false, "File is empty.");
 
-        var accounts = _context.Accounts.ToList();
+        var accounts = Context.Accounts.ToList();
         var balances = new List<Balance>();
         int year = 0, month = 0;
 
@@ -120,11 +120,11 @@ public class FileUploadService : IFileUploadService
             }
 
             // Remove existing balances for the same year and month before inserting new ones
-            var existing = _context.Balances.Where(b => b.Year == year && b.Month == month);
-            _context.Balances.RemoveRange(existing);
+            var existing = Context.Balances.Where(b => b.Year == year && b.Month == month);
+            Context.Balances.RemoveRange(existing);
 
-            await _context.Balances.AddRangeAsync(balances);
-            await _context.SaveChangesAsync();
+            await Context.Balances.AddRangeAsync(balances);
+            await Context.SaveChangesAsync();
 
             return (true, null);
         }
