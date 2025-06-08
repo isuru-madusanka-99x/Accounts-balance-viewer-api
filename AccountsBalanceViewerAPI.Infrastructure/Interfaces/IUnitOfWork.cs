@@ -8,8 +8,8 @@ namespace AccountsBalanceViewerAPI.Infrastructure.Interfaces;
 public interface IUnitOfWork : IDisposable
 {
     DataContext Db { get; }
-    //IPlanRepository PlanRepository { get; }
     IGenericRepository<Account> AccountRepository { get; }
+    IGenericRepository<Balance> BalanceRepository { get; }
     void Save();
     Task SaveAsync(CancellationToken token);
 }

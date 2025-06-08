@@ -11,52 +11,48 @@ public class BalancesController : ControllerBase
 {
     private readonly ILogger<BalancesController> _logger;
     private readonly IFileUploadService _fileUploadService;
+    private readonly IBalanceService _balanceService;
 
-    public BalancesController(ILogger<BalancesController> logger, IFileUploadService fileUploadService)
+    public BalancesController(
+        ILogger<BalancesController> logger, 
+        IFileUploadService fileUploadService,
+        IBalanceService balanceService)
     {
         _logger = logger;
         _fileUploadService = fileUploadService;
+        _balanceService = balanceService;
     }
 
-    // Endpoint accessible by all authenticated users
-    [HttpGet]
+    // Get all balance periods (year and month combinations)
+    [HttpGet("periods")]
     [Authorize(Policy = "AllUsers")]
-    public IActionResult GetBalances()
+    public async Task<IActionResult> GetBalancePeriods()
     {
-        // TODO: Replace with actual data retrieval logic
-        return Ok(new
+        try
         {
-            success = true,
-            message = "Current balances retrieved successfully.",
-            data = new[]
+            var periods = await _balanceService.GetBalancesByPeriodAsync();
+            return Ok(new
             {
-                new { AccountId = "ACC001", Balance = 1250.50, Name = "Checking Account" },
-                new { AccountId = "ACC002", Balance = 8750.75, Name = "Savings Account" }
-            }
-        });
-    }
-
-    // Endpoint accessible only by admin users
-    [HttpGet("reports")]
-    [Authorize(Policy = "AdminOnly")]
-    public IActionResult GetReports()
-    {
-        // TODO: Replace with actual report retrieval logic
-        return Ok(new
+                success = true,
+                message = "Balance periods retrieved successfully.",
+                data = periods
+            });
+        }
+        catch (Exception ex)
         {
-            success = true,
-            message = "Reports retrieved successfully.",
-            data = new[]
+            _logger.LogError(ex, "Error retrieving balance periods");
+            return StatusCode(500, new
             {
-                new { ReportId = "REP001", Name = "Monthly Balance Summary", GeneratedDate = DateTime.Now }
-            }
-        });
+                success = false,
+                message = "An error occurred while retrieving balance periods."
+            });
+        }
     }
 
     [HttpPost("upload")]
     [Authorize(Policy = "AdminOnly")]
     [Consumes("multipart/form-data")]
-    public async Task<IActionResult> UploadBalances([FromForm] IFormFile file)
+    public async Task<IActionResult> UploadBalances(IFormFile file)
     {
         var (success, error) = await _fileUploadService.ProcessBalanceFileAsync(file);
         if (!success)
