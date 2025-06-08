@@ -23,11 +23,13 @@ public class BalancesController : ControllerBase
     [Authorize(Policy = "AllUsers")]
     public IActionResult GetBalances()
     {
-        // Return account balances data
+        // TODO: Replace with actual data retrieval logic
         return Ok(new
         {
-            Message = "Current balances retrieved successfully",
-            Accounts = new[] {
+            success = true,
+            message = "Current balances retrieved successfully.",
+            data = new[]
+            {
                 new { AccountId = "ACC001", Balance = 1250.50, Name = "Checking Account" },
                 new { AccountId = "ACC002", Balance = 8750.75, Name = "Savings Account" }
             }
@@ -39,11 +41,13 @@ public class BalancesController : ControllerBase
     [Authorize(Policy = "AdminOnly")]
     public IActionResult GetReports()
     {
-        // Return admin reports
+        // TODO: Replace with actual report retrieval logic
         return Ok(new
         {
-            Message = "Reports retrieved successfully",
-            Reports = new[] {
+            success = true,
+            message = "Reports retrieved successfully.",
+            data = new[]
+            {
                 new { ReportId = "REP001", Name = "Monthly Balance Summary", GeneratedDate = DateTime.Now }
             }
         });
@@ -51,12 +55,13 @@ public class BalancesController : ControllerBase
 
     [HttpPost("upload")]
     [Authorize(Policy = "AdminOnly")]
-    public async Task<IActionResult> UploadBalances(IFormFile file)
+    [Consumes("multipart/form-data")]
+    public async Task<IActionResult> UploadBalances([FromForm] IFormFile file)
     {
         var (success, error) = await _fileUploadService.ProcessBalanceFileAsync(file);
         if (!success)
-            return BadRequest(new { Message = error });
+            return BadRequest(new { success = false, message = error });
 
-        return Ok(new { Message = "Balances uploaded successfully" });
+        return Ok(new { success = true, message = "Balances uploaded successfully." });
     }
 }

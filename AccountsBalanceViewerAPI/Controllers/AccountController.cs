@@ -20,36 +20,58 @@ public class AccountController : ControllerBase
     }
 
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Account>>> GetAccounts()
+    public async Task<IActionResult> GetAccounts()
     {
         try
         {
             var accounts = await _accountService.GetAllAccountsAsync();
-            return Ok(accounts);
+            return Ok(new
+            {
+                success = true,
+                message = "Accounts retrieved successfully.",
+                data = accounts
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving accounts");
-            return StatusCode(500, "An error occurred while retrieving accounts");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = "An error occurred while retrieving accounts."
+            });
         }
     }
 
     [HttpGet("{id}")]
-    public async Task<ActionResult<Account>> GetAccount(Guid id)
+    public async Task<IActionResult> GetAccount(Guid id)
     {
         try
         {
             var account = await _accountService.GetAccountByIdAsync(id);
             if (account == null)
             {
-                return NotFound();
+                return NotFound(new
+                {
+                    success = false,
+                    message = $"Account with ID {id} not found."
+                });
             }
-            return Ok(account);
+            return Ok(new
+            {
+                success = true,
+                message = "Account retrieved successfully.",
+                data = account
+            });
         }
         catch (Exception ex)
         {
             _logger.LogError(ex, "Error retrieving account with ID {Id}", id);
-            return StatusCode(500, $"An error occurred while retrieving account with ID {id}");
+            return StatusCode(500, new
+            {
+                success = false,
+                message = $"An error occurred while retrieving account with ID {id}."
+            });
         }
     }
 }
