@@ -34,6 +34,11 @@ public class FileUploadService : IFileUploadService
                 using var workbook = new XLWorkbook(stream);
                 var worksheet = workbook.Worksheets.First();
 
+                // Ensure LastRowUsed is not null before accessing RowNumber
+                var lastRowUsed = worksheet.LastRowUsed();
+                if (lastRowUsed == null)
+                    return (false, "The worksheet does not contain any used rows.");
+
                 // Read header (first row, columns 2 and 3)
                 var monthText = worksheet.Cell(1, 2).GetString().Trim();
                 var yearText = worksheet.Cell(1, 3).GetString().Trim();
@@ -48,7 +53,7 @@ public class FileUploadService : IFileUploadService
                     return (false, $"Invalid month name '{monthText}' in Excel header.");
                 }
 
-                for (int row = 4; row <= (worksheet.LastRowUsed().RowNumber() - 1); row++)
+                for (int row = 4; row <= (lastRowUsed.RowNumber() - 1); row++)
                 {
                     var name = worksheet.Cell(row, 1).GetString().Trim();
                     var amountText = worksheet.Cell(row, 2).GetString().Replace(",", "").Trim();

@@ -121,8 +121,8 @@ public static partial class ServiceInitializer
 
         // Configure Auth0 Authentication
         services.AddAuth0WebAppAuthentication(options => {
-            options.Domain = _authConfig.GetValue<string>("Domain");
-            options.ClientId = _authConfig.GetValue<string>("ClientId");
+            options.Domain = _authConfig.GetValue<string>("Domain") ?? string.Empty;
+            options.ClientId = _authConfig.GetValue<string>("ClientId") ?? string.Empty;
             options.ClientSecret = _authConfig.GetValue<string>("ClientSecret");
 
             options.SkipCookieMiddleware = true;
