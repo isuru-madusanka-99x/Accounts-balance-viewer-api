@@ -8,4 +8,5 @@ public class DataContext : DbContext
     public DataContext(DbContextOptions<DataContext> options) : base(options) { }
 
     public DbSet<Account> Accounts { get; set; } = null!;
+    public DbSet<Balance> Balances { get; set; } = null!;
 }

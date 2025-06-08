@@ -2,7 +2,7 @@ using AccountsBalanceViewerAPI.Application.Interfaces;
 using AccountsBalanceViewerAPI.Domain.Models;
 using AccountsBalanceViewerAPI.Infrastructure.Interfaces;
 
-namespace AccountsBalanceViewerAPI.Application.Services;
+namespace AccountsBalanceViewerAPI.Application.Services.Accounts;
 
 public class AccountService : IAccountService
 {

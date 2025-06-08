@@ -10,6 +10,7 @@ public class UnitOfWork : IUnitOfWork
     private readonly DataContext _context;
 
     private GenericRepository<Account>? _accountRepository;
+    private GenericRepository<Balance>? _balanceRepository;
 
     public DataContext Db => _context;
 
@@ -27,6 +28,18 @@ public class UnitOfWork : IUnitOfWork
                 _accountRepository = new GenericRepository<Account>(_context);
             }
             return _accountRepository;
+        }
+    }
+
+    public IGenericRepository<Balance> BalanceRepository
+    {
+        get
+        {
+            if (_balanceRepository == null)
+            {
+                _balanceRepository = new GenericRepository<Balance>(_context);
+            }
+            return _balanceRepository;
         }
     }
 

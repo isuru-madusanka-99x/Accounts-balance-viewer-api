@@ -7,7 +7,8 @@ using System.Security.Claims;
 using AccountsBalanceViewerAPI.Infrastructure.Interfaces;
 using AccountsBalanceViewerAPI.Infrastructure;
 using AccountsBalanceViewerAPI.Application.Interfaces;
-using AccountsBalanceViewerAPI.Application.Services;
+using AccountsBalanceViewerAPI.Application.Services.Accounts;
+using AccountsBalanceViewerAPI.Application.Services.FileUploads;
 
 namespace AccountsBalanceViewerAPI.Startup;
 
@@ -192,6 +193,7 @@ public static partial class ServiceInitializer
     private static void RegisterServices(IServiceCollection services, IWebHostEnvironment env)
     {
         services.AddTransient<IAccountService, AccountService>();
+        services.AddTransient<IFileUploadService, FileUploadService>();
     }
 
     /*

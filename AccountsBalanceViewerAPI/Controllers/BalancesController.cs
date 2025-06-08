@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Authorization;
+﻿using AccountsBalanceViewerAPI.Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace AccountsBalanceViewerAPI.Controllers;
@@ -9,10 +10,12 @@ namespace AccountsBalanceViewerAPI.Controllers;
 public class BalancesController : ControllerBase
 {
     private readonly ILogger<BalancesController> _logger;
+    private readonly IFileUploadService _fileUploadService;
 
-    public BalancesController(ILogger<BalancesController> logger)
+    public BalancesController(ILogger<BalancesController> logger, IFileUploadService fileUploadService)
     {
         _logger = logger;
+        _fileUploadService = fileUploadService;
     }
 
     // Endpoint accessible by all authenticated users
@@ -32,15 +35,6 @@ public class BalancesController : ControllerBase
     }
 
     // Endpoint accessible only by admin users
-    [HttpPost("upload")]
-    [Authorize(Policy = "AdminOnly")]
-    public IActionResult UploadBalances([FromBody] object balanceData)
-    {
-        // Process balance upload (admin only feature)
-        return Ok(new { Message = "Balances uploaded successfully" });
-    }
-
-    // Endpoint accessible only by admin users
     [HttpGet("reports")]
     [Authorize(Policy = "AdminOnly")]
     public IActionResult GetReports()
@@ -53,5 +47,16 @@ public class BalancesController : ControllerBase
                 new { ReportId = "REP001", Name = "Monthly Balance Summary", GeneratedDate = DateTime.Now }
             }
         });
+    }
+
+    [HttpPost("upload")]
+    [Authorize(Policy = "AdminOnly")]
+    public async Task<IActionResult> UploadBalances(IFormFile file)
+    {
+        var (success, error) = await _fileUploadService.ProcessBalanceFileAsync(file);
+        if (!success)
+            return BadRequest(new { Message = error });
+
+        return Ok(new { Message = "Balances uploaded successfully" });
     }
 }
