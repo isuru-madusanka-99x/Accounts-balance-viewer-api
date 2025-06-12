@@ -10,11 +10,13 @@ namespace AccountsBalanceViewerAPI.Application.Services.FileUploads;
 
 public class FileUploadService : IFileUploadService
 {
-    private readonly IUnitOfWork _unitOfWork;
+    private readonly IUnitOfWork UnitOfWork;
+    private readonly Regex HeaderWithMonthYearRegex = new(@"for\s+([A-Za-z]+)\s+(\d{4})", RegexOptions.IgnoreCase | RegexOptions.Compiled);
+    private readonly Regex AccountAmountRegex = new(@"^(.*?)(-?\d+(\.\d{1,2})?)$", RegexOptions.Compiled);
 
     public FileUploadService(IUnitOfWork unitOfWork)
     {
-        _unitOfWork = unitOfWork;
+        UnitOfWork = unitOfWork;
     }
 
     public async Task<(bool Success, string? ErrorMessage)> ProcessBalanceFileAsync(IFormFile file)
@@ -22,7 +24,7 @@ public class FileUploadService : IFileUploadService
         if (file == null || file.Length == 0)
             return (false, "File is empty.");
 
-        var accounts = (await _unitOfWork.AccountRepository.GetAsync()).ToList();
+        var accounts = (await UnitOfWork.AccountRepository.GetAsync()).ToList();
         var balances = new List<Balance>();
         int year = 0, month = 0;
 
@@ -114,20 +116,20 @@ public class FileUploadService : IFileUploadService
             }
 
             // Remove existing balances for the same year and month before inserting new ones
-            var existing = await _unitOfWork.BalanceRepository.GetAsync(
+            var existing = await UnitOfWork.BalanceRepository.GetAsync(
                 filter: b => b.Year == year && b.Month == month
             );
             foreach (var balance in existing)
             {
-                _unitOfWork.BalanceRepository.Delete(balance);
+                UnitOfWork.BalanceRepository.Delete(balance);
             }
 
             foreach (var balance in balances)
             {
-                await _unitOfWork.BalanceRepository.InsertAsync(balance);
+                await UnitOfWork.BalanceRepository.InsertAsync(balance);
             }
 
-            await _unitOfWork.SaveAsync(default);
+            await UnitOfWork.SaveAsync(default);
 
             return (true, null);
         }
@@ -139,8 +141,7 @@ public class FileUploadService : IFileUploadService
 
     private (int year, int month)? ParseYearMonthFromHeader(string header)
     {
-        // Example: "Account Balances for March 2017"
-        var match = Regex.Match(header, @"for\s+([A-Za-z]+)\s+(\d{4})", RegexOptions.IgnoreCase);
+        var match = HeaderWithMonthYearRegex.Match(header);
         if (match.Success)
         {
             var monthName = match.Groups[1].Value;
@@ -151,9 +152,9 @@ public class FileUploadService : IFileUploadService
         return null;
     }
 
-     static (string AccountName, decimal Amount)? ExtractAccountAndAmount(string input)
+    private (string AccountName, decimal Amount)? ExtractAccountAndAmount(string input)
     {
-        var match = Regex.Match(input, @"^(.*?)(-?\d+(\.\d{1,2})?)$");
+        var match = AccountAmountRegex.Match(input);
         if (match.Success)
         {
             var accountName = match.Groups[1].Value.Trim();
