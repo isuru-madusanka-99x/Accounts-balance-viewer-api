@@ -89,18 +89,14 @@ public class FileUploadService : IFileUploadService
                 {
                     row++;
                     if (string.IsNullOrWhiteSpace(line)) continue;
-                    var parts = line.Split('\t');
-                    if (parts.Length < 2)
-                        return (false, $"Invalid format at line {row}.");
+                    var accountAndAmount = ExtractAccountAndAmount(line);
+                    if (accountAndAmount == null)
+                        return (false, $"Invalid format at row {row}.");
+                    var (accountName, amount) = accountAndAmount.Value;
 
-                    var name = parts[0].Trim();
-                    var amountText = parts[1].Replace(",", "").Trim();
-                    if (!decimal.TryParse(amountText, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
-                        return (false, $"Invalid amount at line {row}.");
-
-                    var account = accounts.FirstOrDefault(a => a.AccountName.Equals(name, StringComparison.OrdinalIgnoreCase));
+                    var account = accounts.FirstOrDefault(a => a.AccountName.Equals(accountName, StringComparison.OrdinalIgnoreCase));
                     if (account == null)
-                        return (false, $"Account '{name}' not found at line {row}.");
+                        return (false, $"Account '{accountName}' not found at row {row}.");
 
                     balances.Add(new Balance
                     {
@@ -151,6 +147,20 @@ public class FileUploadService : IFileUploadService
             var year = int.Parse(match.Groups[2].Value);
             var month = DateTime.ParseExact(monthName, "MMMM", CultureInfo.InvariantCulture).Month;
             return (year, month);
+        }
+        return null;
+    }
+
+     static (string AccountName, decimal Amount)? ExtractAccountAndAmount(string input)
+    {
+        var match = Regex.Match(input, @"^(.*?)(-?\d+(\.\d{1,2})?)$");
+        if (match.Success)
+        {
+            var accountName = match.Groups[1].Value.Trim();
+            if (decimal.TryParse(match.Groups[2].Value, NumberStyles.Any, CultureInfo.InvariantCulture, out var amount))
+            {
+                return (accountName, amount);
+            }
         }
         return null;
     }
