@@ -15,6 +15,9 @@ public static partial class MiddlewareInitializer
             c.RoutePrefix = string.Empty;
         });
 
+        // Enable CORS for all origins, methods, and headers
+        app.UseCors("AllowDevClient");
+
         // Add authentication middleware before other middleware
         app.UseAuthentication();
         app.UseAuthorization();

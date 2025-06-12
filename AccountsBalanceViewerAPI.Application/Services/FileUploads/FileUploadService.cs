@@ -1,6 +1,6 @@
 ﻿using AccountsBalanceViewerAPI.Application.Interfaces;
-using AccountsBalanceViewerAPI.Domain;
 using AccountsBalanceViewerAPI.Domain.Models;
+using AccountsBalanceViewerAPI.Infrastructure.Interfaces;
 using Microsoft.AspNetCore.Http;
 using ClosedXML.Excel;
 using System.Globalization;
@@ -10,11 +10,11 @@ namespace AccountsBalanceViewerAPI.Application.Services.FileUploads;
 
 public class FileUploadService : IFileUploadService
 {
-    private readonly DataContext Context;
+    private readonly IUnitOfWork _unitOfWork;
 
-    public FileUploadService(DataContext context)
+    public FileUploadService(IUnitOfWork unitOfWork)
     {
-        Context = context;
+        _unitOfWork = unitOfWork;
     }
 
     public async Task<(bool Success, string? ErrorMessage)> ProcessBalanceFileAsync(IFormFile file)
@@ -22,7 +22,7 @@ public class FileUploadService : IFileUploadService
         if (file == null || file.Length == 0)
             return (false, "File is empty.");
 
-        var accounts = Context.Accounts.ToList();
+        var accounts = (await _unitOfWork.AccountRepository.GetAsync()).ToList();
         var balances = new List<Balance>();
         int year = 0, month = 0;
 
@@ -34,12 +34,10 @@ public class FileUploadService : IFileUploadService
                 using var workbook = new XLWorkbook(stream);
                 var worksheet = workbook.Worksheets.First();
 
-                // Ensure LastRowUsed is not null before accessing RowNumber
                 var lastRowUsed = worksheet.LastRowUsed();
                 if (lastRowUsed == null)
                     return (false, "The worksheet does not contain any used rows.");
 
-                // Read header (first row, columns 2 and 3)
                 var monthText = worksheet.Cell(1, 2).GetString().Trim();
                 var yearText = worksheet.Cell(1, 3).GetString().Trim();
                 if (!int.TryParse(yearText, out year) || string.IsNullOrWhiteSpace(monthText))
@@ -120,11 +118,20 @@ public class FileUploadService : IFileUploadService
             }
 
             // Remove existing balances for the same year and month before inserting new ones
-            var existing = Context.Balances.Where(b => b.Year == year && b.Month == month);
-            Context.Balances.RemoveRange(existing);
+            var existing = await _unitOfWork.BalanceRepository.GetAsync(
+                filter: b => b.Year == year && b.Month == month
+            );
+            foreach (var balance in existing)
+            {
+                _unitOfWork.BalanceRepository.Delete(balance);
+            }
 
-            await Context.Balances.AddRangeAsync(balances);
-            await Context.SaveChangesAsync();
+            foreach (var balance in balances)
+            {
+                await _unitOfWork.BalanceRepository.InsertAsync(balance);
+            }
+
+            await _unitOfWork.SaveAsync(default);
 
             return (true, null);
         }
@@ -146,7 +153,5 @@ public class FileUploadService : IFileUploadService
             return (year, month);
         }
         return null;
-
-
     }
 }

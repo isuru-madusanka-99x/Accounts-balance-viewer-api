@@ -21,7 +21,7 @@ public static partial class ServiceInitializer
     {
         services.AddControllers();
 
-        //RegisterScopedServices(services);
+        AllowCors(services);
 
         RegisterDbOptions(services, config);
 
@@ -41,8 +41,6 @@ public static partial class ServiceInitializer
     private static void RegisterDbOptions(IServiceCollection services, IConfiguration config)
     {
         //configure db repos
-        //services.AddTransient<IPlanRepository, PlanRepository>();
-        //services.AddTransient<IValveRepository, ValveRepository>();
         services.AddTransient<IUnitOfWork, UnitOfWork>();
 
         //Get DB connection string
@@ -198,16 +196,20 @@ public static partial class ServiceInitializer
         services.AddTransient<IFileUploadService, FileUploadService>();
     }
 
-    /*
-
-    private static void RegisterScopedServices(IServiceCollection services)
+    private static void AllowCors(IServiceCollection services)
     {
-        services.AddScoped<IContextService, ContextService>();
-        services.AddHttpContextAccessor();
-        services.AddScoped<IAzStorageService, AzStorageService>();
+        services.AddCors(options =>
+        {
+            options.AddPolicy("AllowDevClient", builder =>
+            {
+                builder
+                    .WithOrigins("http://localhost:4200") // Add your frontend dev URL(s)
+                    .AllowAnyHeader()
+                    .AllowAnyMethod()
+                    .AllowCredentials();
+            });
+        });
     }
-
-    */
 }
 
 
