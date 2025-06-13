@@ -4,10 +4,6 @@ using AccountsBalanceViewerAPI.Domain.Models;
 using AccountsBalanceViewerAPI.Infrastructure.Interfaces;
 using FakeItEasy;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Xunit;
 
 namespace AccountsBalanceViewerAPI.Tests.Unit.AccountsBalanceViewerAPI.Application.Services.Accounts;

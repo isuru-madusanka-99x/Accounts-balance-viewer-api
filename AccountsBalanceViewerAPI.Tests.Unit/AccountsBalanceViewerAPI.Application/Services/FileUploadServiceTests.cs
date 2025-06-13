@@ -1,16 +1,12 @@
+using _4Subsea.ValveTrack.DAL.Interfaces;
 using AccountsBalanceViewerAPI.Application.Services.FileUploads;
 using AccountsBalanceViewerAPI.Domain.Models;
 using AccountsBalanceViewerAPI.Infrastructure.Interfaces;
-using Microsoft.AspNetCore.Http;
 using FakeItEasy;
+using Microsoft.AspNetCore.Http;
 using Shouldly;
-using System;
-using System.Collections.Generic;
-using System.IO;
 using System.Text;
-using System.Threading.Tasks;
 using Xunit;
-using _4Subsea.ValveTrack.DAL.Interfaces;
 
 namespace AccountsBalanceViewerAPI.Tests.Unit.AccountsBalanceViewerAPI.Application.Services.FileUploads;
 
